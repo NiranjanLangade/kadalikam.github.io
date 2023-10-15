@@ -1,0 +1,302 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+    <meta charset="UTF-8">
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+    <title>Banana Fiber</title>
+    <link rel="stylesheet" href="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/css/bootstrap.min.css">
+    <link rel="stylesheet" href="style.css">
+</head>
+  <body>
+    <div class="header">
+			<div class="container">
+				<div class="navbar">
+					<div class="logo">
+						<a href="./index.html"
+							><img src="images/logo.png" alt="logo" width="100px"
+						/></a>
+					</div>
+					<nav>
+						<ul id="MenuItems">
+							<li><a href="./index.html">Home</a></li>
+							<li><a href="./products.html">Products</a></li>
+							<li><a href="">About</a></li>
+							<li><a href="./connect.html">Connect</a></li>
+							<li><a href="./account.html">Account</a></li>
+						</ul>
+					</nav>
+					<a href="./cart.html"
+						><img src="images/cart.png" alt="cart" width="30px" height="30px"
+					/></a>
+					<img
+						src="images/menu.png"
+						alt="menu"
+						class="menu-icon"
+						onclick="menutoggle()"
+					/>
+				</div>
+			
+			</div>
+		</div>
+    <div class="container">
+      <h1 class="my-4">Connect to Manufacturer</h1>
+      <form>
+        <div class="form-group">
+          <label for="name">Name:</label>
+          <input type="text" class="form-control" id="name" required>
+        </div>
+        <div class="form-group">
+          <label for="phone">Phone Number:</label>
+          <input type="tel" class="form-control" id="phone" required>
+        </div>
+        <div class="form-group">
+          <label for="address">Detailed Address:</label>
+          <textarea class="form-control" id="address" rows="3" required></textarea>
+        </div>
+        <div class="form-group">
+          <label for="cutDate">Date of Tree Cut:</label>
+          <input type="date" class="form-control" id="cutDate" onchange="calculateAndAutofillAge()" required>
+        </div>        
+        <div class="form-group">
+          <label for="age">Age of Banana Tree (in days):</label>
+          <input type="number" class="form-control" id="age" min="0" readonly>
+        </div>
+        
+        <div class="form-group">
+          <label for="stems">Number of Stems:</label>
+          <input type="number" class="form-control" id="stems" min="1">
+        </div>
+        <!-- <div class="form-group">
+          <label for="cost">Fixed Cost per Stem (INR):</label>
+          <input type="number" class="form-control" id="cost" min="0">
+        </div> -->
+        <button type="button" class="btn btn-primary" onclick="calculatePayment()">Calculate Payment</button>
+      </form>
+      <p id="location" class="mt-3">Fetching user location...</p>
+      <p id="payment" class="mt-3"></p>
+    </div>
+
+    <div class="footer">
+			<div class="container">
+				<div class="row">
+					<div class="footer-col-1">
+						<h3>Download Our App</h3>
+						<p class="ptag">Download App for Android and iOS Mobile Phones.</p>
+						<div class="app-logo">
+							<img src="images/play-store.png" alt="" />
+							<img src="images/app-store.png" alt="" />
+						</div>
+					</div>
+					<div class="footer-col-2">
+						<img src="images/logo.png" alt="" />
+						<p class="ptag">
+							Our purpose is to provide a common platform for
+							farmers,manufactures as well as consumers
+						</p>
+					</div>
+					<div class="footer-col-3">
+						<h3>Useful Links</h3>
+						<ul>
+							<li>Coupons</li>
+							<li>Blog Post</li>
+							<li>Return Policy</li>
+							<li>Join Affiliate</li>
+						</ul>
+					</div>
+					<div class="footer-col-3">
+						<h3>Follow us</h3>
+						<ul>
+							<li>Facebook</li>
+							<li>Twitter</li>
+							<li>Instagram</li>
+							<li>Youtube</li>
+						</ul>
+					</div>
+				</div>
+				<hr />
+				<p class="copyright">
+					Copyright 2023 - Kadalikam <br />Developed with ❤️ by Niranjan Langade
+				</p>
+			</div>
+		</div>
+	</body>
+	<!-- JS for toggle menu -->
+	<script>
+		var MenuItems = document.getElementById("MenuItems");
+
+		MenuItems.style.maxHeight = "0px";
+
+		function menutoggle() {
+			if (MenuItems.style.maxHeight == "0px") {
+				MenuItems.style.maxHeight = "200px";
+			} else {
+				MenuItems.style.maxHeight = "0px";
+			}
+		}
+	</script>
+
+  <script src="https://code.jquery.com/jquery-3.5.1.slim.min.js"></script>
+  <script src="https://cdn.jsdelivr.net/npm/@popperjs/core@2.9.1/dist/umd/popper.min.js"></script>
+  <script src="https://stackpath.bootstrapcdn.com/bootstrap/4.5.2/js/bootstrap.min.js"></script>
+
+  <script>
+    function calculateDistance(lat1, lon1, lat2, lon2) {
+        const earthRadiusKm = 6371;
+
+        const dLat = ((lat2 - lat1) * Math.PI) / 180;
+        const dLon = ((lon2 - lon1) * Math.PI) / 180;
+
+        const a =
+            Math.sin(dLat / 2) * Math.sin(dLat / 2) +
+            Math.cos((lat1 * Math.PI) / 180) *
+            Math.cos((lat2 * Math.PI) / 180) *
+            Math.sin(dLon / 2) *
+            Math.sin(dLon / 2);
+
+        const c = 2 * Math.atan2(Math.sqrt(a), Math.sqrt(1 - a));
+        const distance = earthRadiusKm * c;
+
+        return distance;
+    }
+
+    function findNearestManufacturer(userLocation, manufacturerLocations) {
+        let nearestManufacturer = null;
+        let minDistance = Infinity;
+
+        for (const location of manufacturerLocations) {
+            const distance = calculateDistance(
+            userLocation.latitude,
+            userLocation.longitude,
+            location.latitude,
+            location.longitude
+            );
+
+            if (distance < minDistance) {
+            minDistance = distance;
+            nearestManufacturer = location;
+            }
+        }
+
+        return nearestManufacturer;
+    }
+
+    function getUserLocation() {
+      if (navigator.geolocation) {
+        navigator.geolocation.getCurrentPosition(showPosition, showError);
+      } else {
+        document.getElementById("location").innerHTML =
+          "Geolocation is not supported by this browser.";
+      }
+    }
+
+    function showPosition(position) {
+      const latitude = position.coords.latitude;
+      const longitude = position.coords.longitude;
+
+      // Users location
+      document.getElementById("location").innerHTML = `Your location: Latitude: ${latitude}, Longitude: ${longitude}`;
+      document.getElementById("location").dataset.latitude = latitude;
+      document.getElementById("location").dataset.longitude = longitude;
+
+      // payment calculation
+      calculatePayment();
+    }
+
+    function showError(error) {
+      switch (error.code) {
+        case error.PERMISSION_DENIED:
+          document.getElementById("location").innerHTML =
+            "User denied the request for Geolocation.";
+          break;
+        case error.POSITION_UNAVAILABLE:
+          document.getElementById("location").innerHTML =
+            "Location information is unavailable.";
+          break;
+        case error.TIMEOUT:
+          document.getElementById("location").innerHTML =
+            "The request to get user location timed out.";
+          break;
+        case error.UNKNOWN_ERROR:
+          document.getElementById("location").innerHTML =
+            "An unknown error occurred.";
+          break;
+      }
+    }
+
+    function calculateAgeOfTree(cutDate) {
+      const today = new Date();
+      const cut = new Date(cutDate);
+      
+      const ageInMilliseconds = today - cut;
+      const ageInDays = ageInMilliseconds / (1000 * 60 * 60 * 24);
+      
+      return ageInDays;
+    }
+
+    function calculateAndAutofillAge() {
+      const cutDate = document.getElementById("cutDate").value;
+      const treeAge = calculateAgeOfTree(cutDate);
+  
+      // Autofill the "Age of Banana Tree" input
+      document.getElementById("age").value = treeAge.toFixed(2);
+    }
+
+    function calculatePayment() {
+      const cutDate = document.getElementById("cutDate").value;
+      const age = calculateAgeOfTree(cutDate);
+      //const age = document.getElementById("age").value;
+      const stems = parseInt(document.getElementById("stems").value);
+      const costPerStem = 5;
+
+      //Validation
+      if (!age || isNaN(stems) || isNaN(costPerStem)) {
+        alert("Please fill all input fields correctly.");
+        return;
+      }
+
+      //Sample database
+      const manufacturerLocations = [
+        {
+          name: "Manufacturer A",
+          latitude: 14.0522, 
+          longitude: 75.2437, 
+        },
+        {
+          name: "Manufacturer B",
+          latitude: 37.7749, 
+          longitude: -122.4194, 
+        }, 
+      ];
+
+      
+      const userLocation = {
+        latitude: parseFloat(document.getElementById("location").dataset.latitude),
+        longitude: parseFloat(document.getElementById("location").dataset.longitude),
+      };
+      
+      // Nearest Manufacturer
+      const nearestManufacturer = findNearestManufacturer(userLocation, manufacturerLocations);
+
+      // Distance in kilometers
+      const distance = calculateDistance(
+        userLocation.latitude,
+        userLocation.longitude,
+        nearestManufacturer.latitude,
+        nearestManufacturer.longitude
+      );
+
+      const transportationCostPerKm = 5;
+
+      const totalTransportationCost = transportationCostPerKm * distance;
+
+      const totalPayment = stems * costPerStem - totalTransportationCost;
+
+      document.getElementById("payment").innerHTML = `The nearest manufacturer is ${nearestManufacturer.name}.<br>
+      The distance between farmer and manufacturer is approximately ${distance.toFixed(2)} km.<br>
+      The total transportation cost is INR ${totalTransportationCost.toFixed(2)}.<br>
+      The manufacturer can pay the farmer INR ${totalPayment.toFixed(2)} for ${stems} stems.`;
+    }
+    getUserLocation();
+  </script>
+</body>
+</html>
